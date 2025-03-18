@@ -18,10 +18,12 @@ const Index = () => {
   const [isSeeding, setIsSeeding] = useState(false);
   const [dataExists, setDataExists] = useState(false);
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Check if data exists in Firebase on initial load
   useEffect(() => {
     const checkData = async () => {
+      setIsLoading(true);
       try {
         const { exists } = await checkIfDataExists();
         setDataExists(exists);
@@ -33,6 +35,9 @@ const Index = () => {
         }
       } catch (error) {
         console.error("Error checking if data exists:", error);
+        toast.error("Error connecting to the database. Please try again later.");
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -47,9 +52,11 @@ const Index = () => {
         setSiteInfo(info);
         // Update document title with site name
         document.title = info.siteName;
+        console.log("Loaded site info:", info);
       }
     } catch (error) {
       console.error("Error loading site information:", error);
+      toast.error("Error loading site information");
     }
   };
   
@@ -98,36 +105,44 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
-      <Navbar siteName={siteInfo?.siteName} />
-      <main>
-        <Hero />
-        <Projects />
-        <About />
-        <Skills />
-        <Contact />
-        
-        {/* Admin Panel - Would typically be hidden behind auth */}
-        <div className="fixed bottom-4 right-4 z-50">
-          <Button 
-            onClick={handleSeedData}
-            disabled={isSeeding}
-            variant="default"
-            className="px-4 py-2 rounded-md bg-gradient-primary text-white text-sm font-medium tracking-wide hover:opacity-90 transition-all duration-300 flex items-center gap-2"
-          >
-            {isSeeding ? (
-              <>
-                <span className="w-4 h-4 border-t-2 border-white rounded-full animate-spin"></span>
-                Seeding Data...
-              </>
-            ) : (
-              <>
-                {dataExists ? 'Reseed Firebase Data' : 'Seed Firebase Data'}
-              </>
-            )}
-          </Button>
+      {isLoading ? (
+        <div className="h-screen flex items-center justify-center">
+          <div className="w-16 h-16 border-t-4 border-white rounded-full animate-spin"></div>
         </div>
-      </main>
-      <Footer siteInfo={siteInfo} />
+      ) : (
+        <>
+          <Navbar siteName={siteInfo?.siteName} />
+          <main>
+            <Hero />
+            <Projects />
+            <About />
+            <Skills />
+            <Contact />
+            
+            {/* Admin Panel - Would typically be hidden behind auth */}
+            <div className="fixed bottom-4 right-4 z-50">
+              <Button 
+                onClick={handleSeedData}
+                disabled={isSeeding}
+                variant="default"
+                className="px-4 py-2 rounded-md bg-gradient-primary text-white text-sm font-medium tracking-wide hover:opacity-90 transition-all duration-300 flex items-center gap-2"
+              >
+                {isSeeding ? (
+                  <>
+                    <span className="w-4 h-4 border-t-2 border-white rounded-full animate-spin"></span>
+                    Seeding Data...
+                  </>
+                ) : (
+                  <>
+                    {dataExists ? 'Reseed Firebase Data' : 'Seed Firebase Data'}
+                  </>
+                )}
+              </Button>
+            </div>
+          </main>
+          <Footer siteInfo={siteInfo} />
+        </>
+      )}
     </div>
   );
 };

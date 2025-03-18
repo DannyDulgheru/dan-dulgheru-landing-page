@@ -21,6 +21,8 @@ const Navbar = ({ siteName = "MOTION.DESIGN" }: NavbarProps) => {
     };
   }, []);
   
+  const displayName = siteName || "MOTION.DESIGN";
+  
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300 ${
@@ -29,7 +31,7 @@ const Navbar = ({ siteName = "MOTION.DESIGN" }: NavbarProps) => {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <a href="#" className="text-xl font-display font-medium tracking-wider text-gradient">
-          {siteName.split('.').map((part, index) => (
+          {displayName.split('.').map((part, index) => (
             <span key={index} className={index === 1 ? "font-light" : ""}>
               {index === 0 ? part : `.${part}`}
             </span>

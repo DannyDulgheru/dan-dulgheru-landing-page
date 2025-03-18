@@ -81,9 +81,10 @@ export const fetchSiteInfo = async (): Promise<SiteInfo | null> => {
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
+      console.log("Fetched site info data:", docSnap.data());
       return docSnap.data() as SiteInfo;
     } else {
-      console.log("No site info found");
+      console.log("No site info found in Firebase");
       return null;
     }
   } catch (error) {
@@ -99,9 +100,10 @@ export const fetchHeroContent = async (): Promise<HeroContent | null> => {
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
+      console.log("Fetched hero content:", docSnap.data());
       return docSnap.data() as HeroContent;
     } else {
-      console.log("No hero content found");
+      console.log("No hero content found in Firebase");
       return null;
     }
   } catch (error) {
@@ -117,9 +119,10 @@ export const fetchAboutContent = async (): Promise<AboutContent | null> => {
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
+      console.log("Fetched about content:", docSnap.data());
       return docSnap.data() as AboutContent;
     } else {
-      console.log("No about content found");
+      console.log("No about content found in Firebase");
       return null;
     }
   } catch (error) {
@@ -135,9 +138,11 @@ export const fetchSkillsData = async (): Promise<SkillCategory[] | null> => {
     const skillsSnapshot = await getDocs(skillsCollection);
     
     if (!skillsSnapshot.empty) {
-      return skillsSnapshot.docs.map(doc => doc.data() as SkillCategory);
+      const skills = skillsSnapshot.docs.map(doc => doc.data() as SkillCategory);
+      console.log("Fetched skills data:", skills);
+      return skills;
     } else {
-      console.log("No skills data found");
+      console.log("No skills data found in Firebase");
       return null;
     }
   } catch (error) {
@@ -153,9 +158,11 @@ export const fetchStatsItems = async (): Promise<StatsItem[] | null> => {
     const statsSnapshot = await getDocs(statsCollection);
     
     if (!statsSnapshot.empty) {
-      return statsSnapshot.docs.map(doc => doc.data() as StatsItem);
+      const stats = statsSnapshot.docs.map(doc => doc.data() as StatsItem);
+      console.log("Fetched stats data:", stats);
+      return stats;
     } else {
-      console.log("No stats data found");
+      console.log("No stats data found in Firebase");
       return null;
     }
   } catch (error) {
@@ -171,9 +178,10 @@ export const fetchContactInfo = async (): Promise<ContactInfo | null> => {
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
+      console.log("Fetched contact information:", docSnap.data());
       return docSnap.data() as ContactInfo;
     } else {
-      console.log("No contact information found");
+      console.log("No contact information found in Firebase");
       return null;
     }
   } catch (error) {
@@ -183,14 +191,14 @@ export const fetchContactInfo = async (): Promise<ContactInfo | null> => {
 };
 
 // Fetch featured projects (limited amount) from Firestore
-export const fetchProjects = async (limit = 4): Promise<Project[] | null> => {
+export const fetchProjects = async (limitCount = 4): Promise<Project[] | null> => {
   try {
     const projectsCollection = collection(db, 'projects');
     const projectsSnapshot = await getDocs(projectsCollection);
     
     if (!projectsSnapshot.empty) {
-      return projectsSnapshot.docs
-        .slice(0, limit)
+      const projects = projectsSnapshot.docs
+        .slice(0, limitCount)
         .map(doc => {
           const data = doc.data();
           return {
@@ -206,8 +214,10 @@ export const fetchProjects = async (limit = 4): Promise<Project[] | null> => {
             toolsUsed: data.toolsUsed
           } as Project;
         });
+      console.log(`Fetched ${projects.length} projects data:`, projects);
+      return projects;
     } else {
-      console.log("No projects data found");
+      console.log("No projects data found in Firebase");
       return null;
     }
   } catch (error) {
@@ -223,7 +233,7 @@ export const fetchAllProjects = async (): Promise<Project[] | null> => {
     const projectsSnapshot = await getDocs(projectsCollection);
     
     if (!projectsSnapshot.empty) {
-      return projectsSnapshot.docs.map(doc => {
+      const projects = projectsSnapshot.docs.map(doc => {
         const data = doc.data();
         return {
           id: parseInt(doc.id) || Math.floor(Math.random() * 1000),
@@ -238,8 +248,10 @@ export const fetchAllProjects = async (): Promise<Project[] | null> => {
           toolsUsed: data.toolsUsed
         } as Project;
       });
+      console.log(`Fetched all ${projects.length} projects:`, projects);
+      return projects;
     } else {
-      console.log("No projects data found");
+      console.log("No projects data found in Firebase");
       return null;
     }
   } catch (error) {
