@@ -1,45 +1,83 @@
 
-import React from 'react';
-
-interface SkillCategory {
-  title: string;
-  skills: Array<{
-    name: string;
-    level: number;
-  }>;
-}
-
-const skillsData: SkillCategory[] = [
-  {
-    title: "Animation",
-    skills: [
-      { name: "After Effects", level: 95 },
-      { name: "Character Animation", level: 85 },
-      { name: "Motion Graphics", level: 90 },
-      { name: "Storyboarding", level: 80 },
-    ]
-  },
-  {
-    title: "Design",
-    skills: [
-      { name: "Illustrator", level: 85 },
-      { name: "Photoshop", level: 90 },
-      { name: "Figma", level: 80 },
-      { name: "Typography", level: 75 },
-    ]
-  },
-  {
-    title: "Technical",
-    skills: [
-      { name: "Lottie", level: 85 },
-      { name: "3D Basics", level: 70 },
-      { name: "HTML/CSS Animation", level: 75 },
-      { name: "Video Editing", level: 80 },
-    ]
-  }
-];
+import React, { useEffect, useState } from 'react';
+import { fetchSkillsData, fetchStatsItems, SkillCategory, StatsItem } from '@/services/contentService';
 
 const Skills = () => {
+  const [skillsData, setSkillsData] = useState<SkillCategory[]>([]);
+  const [statsItems, setStatsItems] = useState<StatsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadContent = async () => {
+      setLoading(true);
+      
+      // Fetch skills data
+      const skills = await fetchSkillsData();
+      if (skills) {
+        setSkillsData(skills);
+      } else {
+        // Fallback skills data
+        setSkillsData([
+          {
+            title: "Animation",
+            skills: [
+              { name: "After Effects", level: 95 },
+              { name: "Character Animation", level: 85 },
+              { name: "Motion Graphics", level: 90 },
+              { name: "Storyboarding", level: 80 },
+            ]
+          },
+          {
+            title: "Design",
+            skills: [
+              { name: "Illustrator", level: 85 },
+              { name: "Photoshop", level: 90 },
+              { name: "Figma", level: 80 },
+              { name: "Typography", level: 75 },
+            ]
+          },
+          {
+            title: "Technical",
+            skills: [
+              { name: "Lottie", level: 85 },
+              { name: "3D Basics", level: 70 },
+              { name: "HTML/CSS Animation", level: 75 },
+              { name: "Video Editing", level: 80 },
+            ]
+          }
+        ]);
+      }
+      
+      // Fetch stats items
+      const stats = await fetchStatsItems();
+      if (stats) {
+        setStatsItems(stats);
+      } else {
+        // Fallback stats data
+        setStatsItems([
+          { number: "6+", label: "Years Experience" },
+          { number: "50+", label: "Projects Completed" },
+          { number: "25+", label: "Happy Clients" },
+          { number: "10+", label: "Awards Received" }
+        ]);
+      }
+      
+      setLoading(false);
+    };
+
+    loadContent();
+  }, []);
+
+  if (loading) {
+    return (
+      <section id="skills" className="py-24 px-6 relative scroll-margin">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="w-10 h-10 border-t-2 border-white rounded-full animate-spin mx-auto"></div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="skills" className="py-24 px-6 relative scroll-margin">
       {/* Background Elements */}
@@ -93,12 +131,7 @@ const Skills = () => {
           <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-secondary opacity-10 blur-3xl rounded-full"></div>
           
           <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { number: "6+", label: "Years Experience" },
-              { number: "50+", label: "Projects Completed" },
-              { number: "25+", label: "Happy Clients" },
-              { number: "10+", label: "Awards Received" }
-            ].map((stat, index) => (
+            {statsItems.map((stat, index) => (
               <div key={index} className="text-center">
                 <h4 className="text-4xl md:text-5xl font-display font-bold text-gradient mb-2">
                   {stat.number}

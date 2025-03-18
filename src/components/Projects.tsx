@@ -1,47 +1,74 @@
 
-import React, { useState } from 'react';
-
-interface Project {
-  id: number;
-  title: string;
-  category: string;
-  imageUrl: string;
-  description: string;
-}
-
-const projectsData: Project[] = [
-  {
-    id: 1,
-    title: "Dynamic Brand Animation",
-    category: "Motion Graphics",
-    imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
-    description: "Created fluid logo animations and motion graphics system for a tech brand."
-  },
-  {
-    id: 2,
-    title: "Product Showcase",
-    category: "3D Animation",
-    imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
-    description: "Designed an immersive 3D product showcase for a new electronics launch."
-  },
-  {
-    id: 3,
-    title: "Social Media Package",
-    category: "Animation",
-    imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
-    description: "Developed a cohesive animation package for cross-platform social media content."
-  },
-  {
-    id: 4,
-    title: "Explainer Video",
-    category: "2D Animation",
-    imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
-    description: "Created an engaging explainer video for a SaaS product launch."
-  }
-];
+import React, { useState, useEffect } from 'react';
+import { fetchProjects, Project } from '@/services/contentService';
+import { trackProjectView } from '@/services/analyticsService';
 
 const Projects = () => {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProjects = async () => {
+      setLoading(true);
+      const projectsData = await fetchProjects();
+      if (projectsData && projectsData.length > 0) {
+        setProjects(projectsData);
+      } else {
+        // Fallback data if Firebase data is not available
+        setProjects([
+          {
+            id: 1,
+            title: "Dynamic Brand Animation",
+            category: "Motion Graphics",
+            imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
+            description: "Created fluid logo animations and motion graphics system for a tech brand."
+          },
+          {
+            id: 2,
+            title: "Product Showcase",
+            category: "3D Animation",
+            imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
+            description: "Designed an immersive 3D product showcase for a new electronics launch."
+          },
+          {
+            id: 3,
+            title: "Social Media Package",
+            category: "Animation",
+            imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
+            description: "Developed a cohesive animation package for cross-platform social media content."
+          },
+          {
+            id: 4,
+            title: "Explainer Video",
+            category: "2D Animation",
+            imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
+            description: "Created an engaging explainer video for a SaaS product launch."
+          }
+        ]);
+      }
+      setLoading(false);
+    };
+
+    loadProjects();
+  }, []);
+
+  const handleProjectClick = (project: Project) => {
+    // Track the project view in analytics
+    trackProjectView(project.id.toString(), project.title);
+    // Set the active project (could be used for a modal or expanded view)
+    setActiveProject(project);
+  };
+
+  if (loading) {
+    return (
+      <section id="work" className="py-24 px-6 relative scroll-margin">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="w-10 h-10 border-t-2 border-white rounded-full animate-spin mx-auto"></div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="work" className="py-24 px-6 relative scroll-margin">
@@ -56,12 +83,13 @@ const Projects = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-10">
-          {projectsData.map((project) => (
+          {projects.map((project) => (
             <div 
               key={project.id}
               className="group relative overflow-hidden rounded-lg glass-morphism border border-white/10 transition-all duration-500 hover:border-white/20"
               onMouseEnter={() => setActiveProject(project)}
               onMouseLeave={() => setActiveProject(null)}
+              onClick={() => handleProjectClick(project)}
             >
               {/* Project Image with Overlay */}
               <div className="relative aspect-video overflow-hidden">

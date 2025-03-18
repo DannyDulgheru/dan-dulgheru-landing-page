@@ -1,7 +1,51 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { fetchAboutContent, AboutContent } from '@/services/contentService';
 
 const About = () => {
+  const [content, setContent] = useState<AboutContent | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadContent = async () => {
+      setLoading(true);
+      const aboutContent = await fetchAboutContent();
+      if (aboutContent) {
+        setContent(aboutContent);
+      } else {
+        // Fallback content if Firebase data is not available
+        setContent({
+          title: "Bringing Ideas to Life Through Motion",
+          description: [
+            "I'm a passionate 2D Motion Designer with over 6 years of experience creating compelling visual stories through animation and motion graphics. My approach combines technical precision with artistic vision to deliver motion experiences that captivate and engage.",
+            "My work ranges from brand animations and product showcases to UI motion design and explainer videos. I'm driven by the challenge of translating complex ideas into clear, visually stunning motion sequences.",
+            "When I'm not animating, you'll find me exploring new design trends, experimenting with emerging technologies, or contributing to the motion design community through tutorials and mentorship."
+          ],
+          name: "John Doe",
+          role: "Motion Designer / Art Director",
+          socialLinks: [
+            { platform: "LinkedIn", url: "#" },
+            { platform: "Instagram", url: "#" },
+            { platform: "GitHub", url: "#" }
+          ]
+        });
+      }
+      setLoading(false);
+    };
+
+    loadContent();
+  }, []);
+
+  if (loading) {
+    return (
+      <section id="about" className="py-24 px-6 relative scroll-margin">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="w-10 h-10 border-t-2 border-white rounded-full animate-spin mx-auto"></div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="about" className="py-24 px-6 relative scroll-margin">
       {/* Abstract Decorative Elements */}
@@ -14,81 +58,78 @@ const About = () => {
           <div className="order-2 lg:order-1">
             <p className="uppercase tracking-[0.3em] text-gray-400 text-sm mb-3">About Me</p>
             <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
-              Bringing <span className="text-gradient">Ideas</span> to Life Through Motion
+              {content?.title?.split(' ').map((word, index, array) => {
+                if (index === 0) {
+                  return <span key={index}>{word}{' '}</span>;
+                }
+                if (index === 1) {
+                  return <span key={index}><span className="text-gradient">{word}</span>{' '}</span>;
+                }
+                return <span key={index}>{word}{' '}</span>;
+              })}
             </h2>
             
             <div className="space-y-6 text-gray-300">
-              <p>
-                I'm a passionate 2D Motion Designer with over 6 years of experience creating 
-                compelling visual stories through animation and motion graphics. My approach 
-                combines technical precision with artistic vision to deliver motion experiences 
-                that captivate and engage.
-              </p>
-              <p>
-                My work ranges from brand animations and product showcases to UI motion design 
-                and explainer videos. I'm driven by the challenge of translating complex ideas 
-                into clear, visually stunning motion sequences.
-              </p>
-              <p>
-                When I'm not animating, you'll find me exploring new design trends, 
-                experimenting with emerging technologies, or contributing to the motion 
-                design community through tutorials and mentorship.
-              </p>
+              {content?.description.map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
             </div>
             
             <div className="flex gap-6 mt-8">
-              <a href="#" className="inline-flex items-center gap-2 text-white hover:text-gray-300 transition-colors">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  width="24" 
-                  height="24" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                >
-                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                  <rect x="2" y="9" width="4" height="12"></rect>
-                  <circle cx="4" cy="4" r="2"></circle>
-                </svg>
-                LinkedIn
-              </a>
-              <a href="#" className="inline-flex items-center gap-2 text-white hover:text-gray-300 transition-colors">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  width="24" 
-                  height="24" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                >
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                </svg>
-                Instagram
-              </a>
-              <a href="#" className="inline-flex items-center gap-2 text-white hover:text-gray-300 transition-colors">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  width="24" 
-                  height="24" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                >
-                  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                </svg>
-                GitHub
-              </a>
+              {content?.socialLinks.map((link, index) => (
+                <a key={index} href={link.url} className="inline-flex items-center gap-2 text-white hover:text-gray-300 transition-colors">
+                  {link.platform === "LinkedIn" && (
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="24" 
+                      height="24" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    >
+                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                      <rect x="2" y="9" width="4" height="12"></rect>
+                      <circle cx="4" cy="4" r="2"></circle>
+                    </svg>
+                  )}
+                  {link.platform === "Instagram" && (
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="24" 
+                      height="24" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    >
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                    </svg>
+                  )}
+                  {link.platform === "GitHub" && (
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="24" 
+                      height="24" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    >
+                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                    </svg>
+                  )}
+                  {link.platform}
+                </a>
+              ))}
             </div>
           </div>
           
@@ -104,8 +145,8 @@ const About = () => {
               
               {/* Overlay Elements */}
               <div className="absolute bottom-8 left-8 right-8">
-                <h3 className="text-2xl font-display font-medium mb-2">John Doe</h3>
-                <p className="text-gray-300 text-sm">Motion Designer / Art Director</p>
+                <h3 className="text-2xl font-display font-medium mb-2">{content?.name}</h3>
+                <p className="text-gray-300 text-sm">{content?.role}</p>
               </div>
               
               {/* Decorative Square */}

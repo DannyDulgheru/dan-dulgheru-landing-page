@@ -1,10 +1,13 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ThreeScene from './ThreeScene';
+import { fetchHeroContent, HeroContent } from '@/services/contentService';
 
 const Hero = () => {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const subheadingRef = useRef<HTMLParagraphElement>(null);
+  const [content, setContent] = useState<HeroContent | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const animateText = () => {
@@ -24,12 +27,40 @@ const Hero = () => {
       }
     };
 
-    animateText();
+    // Load content from Firebase
+    const loadContent = async () => {
+      setLoading(true);
+      const heroContent = await fetchHeroContent();
+      if (heroContent) {
+        setContent(heroContent);
+      } else {
+        // Fallback content if Firebase data is not available
+        setContent({
+          role: "2D Motion Designer",
+          heading: "Creating Motion Experiences that Captivate",
+          subheading: "I blend creativity with technical expertise to craft visually stunning animations that tell your story and engage your audience."
+        });
+      }
+      setLoading(false);
+      animateText();
+    };
+
+    loadContent();
     
     return () => {
       // Cleanup if needed
     };
   }, []);
+
+  if (loading) {
+    return (
+      <section id="home" className="relative min-h-screen flex flex-col items-center justify-center px-6 py-24 overflow-hidden">
+        <div className="relative z-10 max-w-5xl mx-auto text-center">
+          <div className="w-10 h-10 border-t-2 border-white rounded-full animate-spin mx-auto"></div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="home" className="relative min-h-screen flex flex-col items-center justify-center px-6 py-24 overflow-hidden">
@@ -45,22 +76,27 @@ const Hero = () => {
       
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto text-center">
-        <p className="text-sm md:text-base uppercase tracking-[0.3em] text-gray-400 mb-4 animate-fade-in">2D Motion Designer</p>
+        <p className="text-sm md:text-base uppercase tracking-[0.3em] text-gray-400 mb-4 animate-fade-in">
+          {content?.role || "2D Motion Designer"}
+        </p>
         
         <h1 
           ref={headingRef}
           className="text-4xl md:text-6xl lg:text-7xl font-display font-bold mb-6 opacity-0 transform translate-y-10 transition-all duration-700 ease-out"
         >
-          Creating <span className="text-gradient">Motion</span> Experiences<br />
-          that <span className="text-gradient">Captivate</span>
+          {content?.heading?.split(' ').map((word, index, array) => {
+            if (index === 1 || index === array.length - 1) {
+              return <span key={index}><span className="text-gradient">{word}</span>{' '}</span>;
+            }
+            return <span key={index}>{word}{' '}</span>;
+          })}
         </h1>
         
         <p 
           ref={subheadingRef}
           className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-10 opacity-0 transform translate-y-10 transition-all duration-700 ease-out delay-300"
         >
-          I blend creativity with technical expertise to craft visually stunning
-          animations that tell your story and engage your audience.
+          {content?.subheading}
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in animation-delay-700">
