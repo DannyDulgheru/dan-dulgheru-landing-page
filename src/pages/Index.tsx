@@ -31,7 +31,7 @@ const Index = () => {
           toast.info("No content found in Firebase database. Consider seeding initial data.");
         } else {
           // Load site info if data exists
-          loadSiteInfo();
+          await loadSiteInfo();
         }
       } catch (error) {
         console.error("Error checking if data exists:", error);

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { submitContactForm } from '@/services/contactService';
 import { trackContactFormSubmission } from '@/services/analyticsService';
+import { fetchContactInfo, ContactInfo } from '@/services/contentService';
 
 const Contact = () => {
   const { toast } = useToast();
@@ -12,6 +13,25 @@ const Contact = () => {
     message: ''
   });
   const [loading, setLoading] = useState(false);
+  const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadContactInfo = async () => {
+      try {
+        const info = await fetchContactInfo();
+        if (info) {
+          setContactInfo(info);
+        }
+      } catch (error) {
+        console.error("Error loading contact information:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadContactInfo();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -57,6 +77,16 @@ const Contact = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <section id="contact" className="py-24 px-6 relative scroll-margin">
+        <div className="max-w-7xl mx-auto flex justify-center">
+          <div className="w-12 h-12 border-t-4 border-white rounded-full animate-spin"></div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="contact" className="py-24 px-6 relative scroll-margin">
       {/* Background Elements */}
@@ -66,8 +96,10 @@ const Contact = () => {
       <div className="max-w-7xl mx-auto">
         <div className="mb-16 text-center">
           <p className="uppercase tracking-[0.3em] text-gray-400 text-sm mb-3">Get In Touch</p>
-          <h2 className="text-4xl md:text-5xl font-display font-bold"><span className="text-gradient">Contact</span> Me</h2>
-          <p className="text-gray-300 mt-4 max-w-lg mx-auto">Have a project in mind? Let's work together to create something extraordinary.</p>
+          <h2 className="text-4xl md:text-5xl font-display font-bold">
+            <span className="text-gradient">{contactInfo?.title || "Contact"}</span> {contactInfo?.subtitle || "Me"}
+          </h2>
+          <p className="text-gray-300 mt-4 max-w-lg mx-auto">{contactInfo?.availability || "Have a project in mind? Let's work together to create something extraordinary."}</p>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -99,7 +131,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h4 className="font-medium text-white">Phone</h4>
-                    <p className="text-gray-300 mt-1">+1 (123) 456-7890</p>
+                    <p className="text-gray-300 mt-1">{contactInfo?.phone || "+1 (123) 456-7890"}</p>
                   </div>
                 </div>
                 
@@ -123,7 +155,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h4 className="font-medium text-white">Email</h4>
-                    <p className="text-gray-300 mt-1">hello@motiondesign.com</p>
+                    <p className="text-gray-300 mt-1">{contactInfo?.email || "hello@motiondesign.com"}</p>
                   </div>
                 </div>
                 
@@ -147,7 +179,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h4 className="font-medium text-white">Location</h4>
-                    <p className="text-gray-300 mt-1">Los Angeles, California</p>
+                    <p className="text-gray-300 mt-1">{contactInfo?.location || "Los Angeles, California"}</p>
                   </div>
                 </div>
               </div>
@@ -155,51 +187,112 @@ const Contact = () => {
               <div>
                 <h4 className="font-medium text-white mb-4">Follow Me</h4>
                 <div className="flex gap-4">
-                  {['twitter', 'instagram', 'dribbble', 'behance'].map((social) => (
-                    <a 
-                      key={social} 
-                      href="#" 
-                      className="w-10 h-10 flex-center rounded-full glass-morphism border border-white/10 hover:bg-white/10 transition-colors"
-                      aria-label={`Visit my ${social} profile`}
-                    >
-                      <span className="sr-only">{social}</span>
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        width="16" 
-                        height="16" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round"
-                        className="text-gray-300"
+                  {contactInfo?.socialLinks ? (
+                    contactInfo.socialLinks.map((social, index) => (
+                      <a 
+                        key={index} 
+                        href={social.url} 
+                        className="w-10 h-10 flex items-center justify-center rounded-full glass-morphism border border-white/10 hover:bg-white/10 transition-colors"
+                        aria-label={`Visit my ${social.platform} profile`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                       >
-                        {social === 'twitter' && (
-                          <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
-                        )}
-                        {social === 'instagram' && (
-                          <>
-                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                          </>
-                        )}
-                        {social === 'dribbble' && (
-                          <>
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"></path>
-                          </>
-                        )}
-                        {social === 'behance' && (
-                          <>
-                            <path d="M16.5 13.5h-7m1-6.5h5.5M6 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path>
-                            <circle cx="12" cy="12" r="10"></circle>
-                          </>
-                        )}
-                      </svg>
-                    </a>
-                  ))}
+                        <span className="sr-only">{social.platform}</span>
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          width="16" 
+                          height="16" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="2" 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round"
+                          className="text-gray-300"
+                        >
+                          {social.platform.toLowerCase() === 'twitter' && (
+                            <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
+                          )}
+                          {social.platform.toLowerCase() === 'instagram' && (
+                            <>
+                              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </>
+                          )}
+                          {social.platform.toLowerCase() === 'dribbble' && (
+                            <>
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"></path>
+                            </>
+                          )}
+                          {social.platform.toLowerCase() === 'behance' && (
+                            <>
+                              <path d="M16.5 13.5h-7m1-6.5h5.5M6 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path>
+                              <circle cx="12" cy="12" r="10"></circle>
+                            </>
+                          )}
+                          {social.platform.toLowerCase() === 'github' && (
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                          )}
+                          {social.platform.toLowerCase() === 'linkedin' && (
+                            <>
+                              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                              <rect x="2" y="9" width="4" height="12"></rect>
+                              <circle cx="4" cy="4" r="2"></circle>
+                            </>
+                          )}
+                        </svg>
+                      </a>
+                    ))
+                  ) : (
+                    // Fallback social links
+                    ['twitter', 'instagram', 'dribbble', 'behance'].map((social) => (
+                      <a 
+                        key={social} 
+                        href="#" 
+                        className="w-10 h-10 flex items-center justify-center rounded-full glass-morphism border border-white/10 hover:bg-white/10 transition-colors"
+                        aria-label={`Visit my ${social} profile`}
+                      >
+                        <span className="sr-only">{social}</span>
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          width="16" 
+                          height="16" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="2" 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round"
+                          className="text-gray-300"
+                        >
+                          {social === 'twitter' && (
+                            <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
+                          )}
+                          {social === 'instagram' && (
+                            <>
+                              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </>
+                          )}
+                          {social === 'dribbble' && (
+                            <>
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"></path>
+                            </>
+                          )}
+                          {social === 'behance' && (
+                            <>
+                              <path d="M16.5 13.5h-7m1-6.5h5.5M6 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path>
+                              <circle cx="12" cy="12" r="10"></circle>
+                            </>
+                          )}
+                        </svg>
+                      </a>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
