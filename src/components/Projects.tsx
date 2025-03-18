@@ -189,6 +189,9 @@ const Projects = () => {
                 title={activeProject.title}
                 loading="lazy"
                 referrerPolicy="no-referrer"
+                style={{ display: 'block' }} // Ensure iframe is displayed as block
+                onLoad={() => console.log('Video iframe loaded successfully')}
+                onError={(e) => console.error('Error loading video iframe:', e)}
               ></iframe>
             )}
           </div>
