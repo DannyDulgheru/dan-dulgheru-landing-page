@@ -8,9 +8,13 @@ import Skills from '@/components/Skills';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import { createScrollObserver } from '@/lib/animations';
+import { trackPageView } from '@/services/analyticsService';
 
 const Index = () => {
   useEffect(() => {
+    // Track page view
+    trackPageView('Home Page');
+    
     // Initialize scroll animations
     const animateOnScroll = () => {
       const observer = createScrollObserver('.animate-on-scroll', 'animate-slide-up', 0.1);

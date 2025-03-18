@@ -1,6 +1,7 @@
-
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import { submitContactForm } from '@/services/contactService';
+import { trackContactFormSubmission } from '@/services/analyticsService';
 
 const Contact = () => {
   const { toast } = useToast();
@@ -17,24 +18,43 @@ const Contact = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      // Submit to Firebase
+      const result = await submitContactForm(formData);
+      
+      if (result.success) {
+        // Track the successful submission
+        trackContactFormSubmission();
+        
+        toast({
+          title: "Message sent!",
+          description: "Thank you for your message. I'll get back to you soon.",
+        });
+        
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+      } else {
+        throw new Error("Failed to submit form");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
       toast({
-        title: "Message sent!",
-        description: "Thank you for your message. I'll get back to you soon.",
+        title: "Something went wrong",
+        description: "Unable to send your message. Please try again later.",
+        variant: "destructive",
       });
+    } finally {
       setLoading(false);
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
-      });
-    }, 1500);
+    }
   };
 
   return (
