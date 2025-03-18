@@ -114,9 +114,9 @@ const Index = () => {
           <Navbar siteName={siteInfo?.siteName} />
           <main>
             <Hero />
-            <Projects />
+{/*             <Projects /> */}
             <About />
-            <Skills />
+{/*             <Skills /> */}
             <Contact />
             
             {/* Admin Panel - Would typically be hidden behind auth */}
