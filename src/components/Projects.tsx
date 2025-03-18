@@ -161,7 +161,7 @@ const Projects = () => {
           {!showAll ? (
             <Button 
               onClick={handleViewAllProjects}
-              className="px-8 py-3 rounded-full glass-morphism border border-white/20 font-medium tracking-wide hover:bg-white/10 transition-all duration-300"
+              className="px-8 py-3 rounded-full glass-morphism border border-white/20 font-medium tracking-wide hover:bg-white/10 transition-all duration-300 text-black"
             >
               View All Projects
             </Button>
