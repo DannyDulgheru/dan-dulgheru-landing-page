@@ -93,6 +93,33 @@
   }
   
   .scroll-margin {
-    scroll-margin-top: 100px;
+    scroll-margin-top: 80px;
+  }
+
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+  
+  .animation-delay-1000 {
+    animation-delay: 1000ms;
+  }
+}
+
+/* Mobile viewport adjustments */
+@media (max-width: 640px) {
+  h1, h2, h3 {
+    word-break: break-word;
+    hyphens: auto;
+  }
+  
+  .scroll-margin {
+    scroll-margin-top: 60px;
+  }
+}
+
+/* Responsive adjustments for text gradients */
+@media (max-width: 480px) {
+  .text-gradient {
+    background-size: 200% 100%;
   }
 }

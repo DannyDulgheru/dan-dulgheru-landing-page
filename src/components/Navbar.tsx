@@ -25,12 +25,12 @@ const Navbar = ({ siteName = "MOTION.DESIGN" }: NavbarProps) => {
   
   return (
     <header 
-      className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 ${
         isScrolled ? 'glass-morphism border-b border-white/10' : 'bg-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <a href="#" className="text-xl font-display font-medium tracking-wider text-gradient">
+        <a href="#" className="text-lg sm:text-xl font-display font-medium tracking-wider text-gradient">
           {displayName.split('.').map((part, index) => (
             <span key={index} className={index === 1 ? "font-light" : ""}>
               {index === 0 ? part : `.${part}`}
@@ -39,7 +39,7 @@ const Navbar = ({ siteName = "MOTION.DESIGN" }: NavbarProps) => {
         </a>
         
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex gap-8">
+        <nav className="hidden md:flex gap-5 lg:gap-8">
           {['Home', 'Work', 'About', 'Skills', 'Contact'].map((item) => (
             <a 
               key={item}
@@ -55,7 +55,7 @@ const Navbar = ({ siteName = "MOTION.DESIGN" }: NavbarProps) => {
         <div className="hidden md:block">
           <a 
             href="#contact"
-            className="px-6 py-2 rounded-full glass-morphism border border-white/20 text-sm font-medium hover:bg-white/10 transition-all duration-300"
+            className="px-4 sm:px-6 py-2 rounded-full glass-morphism border border-white/20 text-xs sm:text-sm font-medium hover:bg-white/10 transition-all duration-300"
           >
             Get in Touch
           </a>
@@ -108,8 +108,8 @@ const Navbar = ({ siteName = "MOTION.DESIGN" }: NavbarProps) => {
           isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="px-6 py-4">
-          <nav className="flex flex-col gap-4">
+        <div className="px-4 sm:px-6 py-4">
+          <nav className="flex flex-col gap-3 sm:gap-4">
             {['Home', 'Work', 'About', 'Skills', 'Contact'].map((item) => (
               <a 
                 key={item}
@@ -122,10 +122,10 @@ const Navbar = ({ siteName = "MOTION.DESIGN" }: NavbarProps) => {
             ))}
           </nav>
           
-          <div className="mt-6 pt-6 border-t border-white/10">
+          <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-white/10">
             <a 
               href="#contact"
-              className="block w-full py-3 text-center rounded-full bg-gradient-primary text-white font-medium tracking-wide hover:opacity-90 transition-all duration-300"
+              className="block w-full py-2.5 sm:py-3 text-center rounded-full bg-gradient-primary text-white font-medium tracking-wide hover:opacity-90 transition-all duration-300"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Get in Touch
