@@ -1,63 +1,88 @@
 
 import React, { useState, useEffect } from 'react';
-import { fetchProjects, Project } from '@/services/contentService';
+import { fetchProjects, fetchAllProjects, Project } from '@/services/contentService';
 import { trackProjectView } from '@/services/analyticsService';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { X } from 'lucide-react';
 
 const Projects = () => {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     const loadProjects = async () => {
       setLoading(true);
-      const projectsData = await fetchProjects();
-      if (projectsData && projectsData.length > 0) {
-        setProjects(projectsData);
-      } else {
-        // Fallback data if Firebase data is not available
-        setProjects([
-          {
-            id: 1,
-            title: "Dynamic Brand Animation",
-            category: "Motion Graphics",
-            imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
-            description: "Created fluid logo animations and motion graphics system for a tech brand."
-          },
-          {
-            id: 2,
-            title: "Product Showcase",
-            category: "3D Animation",
-            imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
-            description: "Designed an immersive 3D product showcase for a new electronics launch."
-          },
-          {
-            id: 3,
-            title: "Social Media Package",
-            category: "Animation",
-            imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
-            description: "Developed a cohesive animation package for cross-platform social media content."
-          },
-          {
-            id: 4,
-            title: "Explainer Video",
-            category: "2D Animation",
-            imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
-            description: "Created an engaging explainer video for a SaaS product launch."
-          }
-        ]);
+      try {
+        // If showAll is true, fetch all projects, otherwise fetch only featured projects
+        const projectsData = showAll 
+          ? await fetchAllProjects()
+          : await fetchProjects(4);
+          
+        if (projectsData && projectsData.length > 0) {
+          setProjects(projectsData);
+        } else {
+          // Fallback data if Firebase data is not available
+          setProjects([
+            {
+              id: 1,
+              title: "Dynamic Brand Animation",
+              category: "Motion Graphics",
+              imageUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2080",
+              description: "Created fluid logo animations and motion graphics system for a tech brand.",
+              videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+            },
+            {
+              id: 2,
+              title: "Product Showcase",
+              category: "3D Animation",
+              imageUrl: "https://images.unsplash.com/photo-1558655146-364adaf1fcc9?q=80&w=2080",
+              description: "Designed an immersive 3D product showcase for a new electronics launch.",
+              videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+            },
+            {
+              id: 3,
+              title: "Social Media Package",
+              category: "Animation",
+              imageUrl: "https://images.unsplash.com/photo-1536240478700-b869070f9279?q=80&w=2080",
+              description: "Developed a cohesive animation package for cross-platform social media content.",
+              videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+            },
+            {
+              id: 4,
+              title: "Explainer Video",
+              category: "2D Animation",
+              imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
+              description: "Created an engaging explainer video for a SaaS product launch.",
+              videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+            }
+          ]);
+        }
+      } catch (error) {
+        console.error("Error loading projects:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     loadProjects();
-  }, []);
+  }, [showAll]);
 
   const handleProjectClick = (project: Project) => {
     // Track the project view in analytics
     trackProjectView(project.id.toString(), project.title);
-    // Set the active project (could be used for a modal or expanded view)
+    // Set the active project and open the dialog if there's a video URL
     setActiveProject(project);
+    if (project.videoUrl) {
+      setIsDialogOpen(true);
+    }
+  };
+
+  const handleViewAllProjects = async () => {
+    setShowAll(true);
   };
 
   if (loading) {
@@ -86,7 +111,7 @@ const Projects = () => {
           {projects.map((project) => (
             <div 
               key={project.id}
-              className="group relative overflow-hidden rounded-lg glass-morphism border border-white/10 transition-all duration-500 hover:border-white/20"
+              className="group relative overflow-hidden rounded-lg glass-morphism border border-white/10 transition-all duration-500 hover:border-white/20 cursor-pointer"
               onMouseEnter={() => setActiveProject(project)}
               onMouseLeave={() => setActiveProject(null)}
               onClick={() => handleProjectClick(project)}
@@ -99,6 +124,17 @@ const Projects = () => {
                   alt={project.title} 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
+                
+                {/* Play button indicator if video exists */}
+                {project.videoUrl && (
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 
+                                  w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center
+                                  opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                  </div>
+                )}
               </div>
               
               {/* Content */}
@@ -123,11 +159,45 @@ const Projects = () => {
         </div>
         
         <div className="text-center mt-16">
-          <button className="px-8 py-3 rounded-full glass-morphism border border-white/20 font-medium tracking-wide hover:bg-white/10 transition-all duration-300">
-            View All Projects
-          </button>
+          {!showAll ? (
+            <Button 
+              onClick={handleViewAllProjects}
+              className="px-8 py-3 rounded-full glass-morphism border border-white/20 font-medium tracking-wide hover:bg-white/10 transition-all duration-300"
+            >
+              View All Projects
+            </Button>
+          ) : (
+            <p className="text-gray-400 animate-fade-in">Showing all projects</p>
+          )}
         </div>
       </div>
+
+      {/* Video Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[90vw] md:max-w-[80vw] lg:max-w-[70vw] max-h-[90vh] p-0 bg-background/95 backdrop-blur-lg">
+          <DialogHeader className="p-4 flex flex-row items-center justify-between">
+            <DialogTitle className="text-xl font-display">
+              {activeProject?.title}
+            </DialogTitle>
+            <DialogClose asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <X className="h-5 w-5" />
+              </Button>
+            </DialogClose>
+          </DialogHeader>
+          <div className="aspect-video w-full">
+            {activeProject?.videoUrl && (
+              <iframe
+                src={activeProject.videoUrl}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title={activeProject.title}
+              ></iframe>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };

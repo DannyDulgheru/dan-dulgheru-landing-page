@@ -1,6 +1,6 @@
 
 import { db } from '@/lib/firebase';
-import { collection, doc, setDoc, writeBatch } from 'firebase/firestore';
+import { collection, doc, setDoc, writeBatch, getDoc } from 'firebase/firestore';
 
 // Function to seed the initial content to Firebase
 export const seedFirebase = async () => {
@@ -28,9 +28,9 @@ export const seedFirebase = async () => {
       name: "John Doe",
       role: "Motion Designer / Art Director",
       socialLinks: [
-        { platform: "LinkedIn", url: "#" },
-        { platform: "Instagram", url: "#" },
-        { platform: "GitHub", url: "#" }
+        { platform: "LinkedIn", url: "https://linkedin.com/in/johndoe" },
+        { platform: "Instagram", url: "https://instagram.com/johndoe" },
+        { platform: "GitHub", url: "https://github.com/johndoe" }
       ]
     });
     
@@ -83,31 +83,49 @@ export const seedFirebase = async () => {
       batch.set(statRef, stat);
     });
     
-    // 5. Seed Projects
+    // 5. Seed Projects with YouTube video links
     const projectsData = [
       {
         title: "Dynamic Brand Animation",
         category: "Motion Graphics",
-        imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
-        description: "Created fluid logo animations and motion graphics system for a tech brand."
+        imageUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2080",
+        description: "Created fluid logo animations and motion graphics system for a tech brand.",
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" // Example YouTube embed URL
       },
       {
         title: "Product Showcase",
         category: "3D Animation",
-        imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
-        description: "Designed an immersive 3D product showcase for a new electronics launch."
+        imageUrl: "https://images.unsplash.com/photo-1558655146-364adaf1fcc9?q=80&w=2080",
+        description: "Designed an immersive 3D product showcase for a new electronics launch.",
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" // Example YouTube embed URL
       },
       {
         title: "Social Media Package",
         category: "Animation",
-        imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
-        description: "Developed a cohesive animation package for cross-platform social media content."
+        imageUrl: "https://images.unsplash.com/photo-1536240478700-b869070f9279?q=80&w=2080",
+        description: "Developed a cohesive animation package for cross-platform social media content.",
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" // Example YouTube embed URL
       },
       {
         title: "Explainer Video",
         category: "2D Animation",
         imageUrl: "https://images.unsplash.com/photo-1633412802994-5c058f151b66?q=80&w=2080",
-        description: "Created an engaging explainer video for a SaaS product launch."
+        description: "Created an engaging explainer video for a SaaS product launch.",
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" // Example YouTube embed URL
+      },
+      {
+        title: "UI Animation Kit",
+        category: "UI/UX Animation",
+        imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2080",
+        description: "Developed a comprehensive UI animation kit for a mobile app.",
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" // Example YouTube embed URL
+      },
+      {
+        title: "Character Animation Reel",
+        category: "Character Animation",
+        imageUrl: "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?q=80&w=2080",
+        description: "A showcase of character animations for various clients and personal projects.",
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" // Example YouTube embed URL
       }
     ];
     
@@ -131,7 +149,7 @@ export const seedFirebase = async () => {
 export const checkIfDataExists = async () => {
   try {
     const heroRef = doc(db, 'content', 'hero');
-    const heroDoc = await doc(db, 'content', 'hero').get();
+    const heroDoc = await getDoc(heroRef);
     
     return { exists: heroDoc.exists() };
   } catch (error) {

@@ -9,19 +9,43 @@ import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import { createScrollObserver } from '@/lib/animations';
 import { trackPageView } from '@/services/analyticsService';
-import { seedFirebase } from '@/services/seedService';
+import { seedFirebase, checkIfDataExists } from '@/services/seedService';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const [isSeeding, setIsSeeding] = useState(false);
+  const [dataExists, setDataExists] = useState(false);
   
-  // Seed Firebase data function - this would typically be done once manually by the site admin
+  // Check if data exists in Firebase on initial load
+  useEffect(() => {
+    const checkData = async () => {
+      try {
+        const { exists } = await checkIfDataExists();
+        setDataExists(exists);
+        if (!exists) {
+          toast.info("No content found in Firebase database. Consider seeding initial data.");
+        }
+      } catch (error) {
+        console.error("Error checking if data exists:", error);
+      }
+    };
+    
+    checkData();
+  }, []);
+  
+  // Seed Firebase data function
   const handleSeedData = async () => {
     setIsSeeding(true);
     try {
       const result = await seedFirebase();
       if (result.success) {
         toast.success("Data successfully seeded to Firebase!");
+        setDataExists(true);
+        // Reload the page after seeding to show the new data
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       } else {
         toast.error("Failed to seed data to Firebase");
       }
@@ -63,9 +87,10 @@ const Index = () => {
         
         {/* Admin Panel - Would typically be hidden behind auth */}
         <div className="fixed bottom-4 right-4 z-50">
-          <button 
+          <Button 
             onClick={handleSeedData}
             disabled={isSeeding}
+            variant="default"
             className="px-4 py-2 rounded-md bg-gradient-primary text-white text-sm font-medium tracking-wide hover:opacity-90 transition-all duration-300 flex items-center gap-2"
           >
             {isSeeding ? (
@@ -74,9 +99,11 @@ const Index = () => {
                 Seeding Data...
               </>
             ) : (
-              'Seed Firebase Data'
+              <>
+                {dataExists ? 'Reseed Firebase Data' : 'Seed Firebase Data'}
+              </>
             )}
-          </button>
+          </Button>
         </div>
       </main>
       <Footer />

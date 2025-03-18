@@ -1,6 +1,6 @@
 
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, query, orderBy, limit } from 'firebase/firestore';
 
 // Types for our content data
 export interface HeroContent {
@@ -39,6 +39,7 @@ export interface Project {
   category: string;
   imageUrl: string;
   description: string;
+  videoUrl?: string; // Added for YouTube videos
 }
 
 // Fetch hero content from Firestore
@@ -113,8 +114,38 @@ export const fetchStatsItems = async (): Promise<StatsItem[] | null> => {
   }
 };
 
-// Fetch projects data from Firestore
-export const fetchProjects = async (): Promise<Project[] | null> => {
+// Fetch featured projects (limited amount) from Firestore
+export const fetchProjects = async (limit = 4): Promise<Project[] | null> => {
+  try {
+    const projectsCollection = collection(db, 'projects');
+    const projectsSnapshot = await getDocs(projectsCollection);
+    
+    if (!projectsSnapshot.empty) {
+      return projectsSnapshot.docs
+        .slice(0, limit)
+        .map(doc => {
+          const data = doc.data();
+          return {
+            id: parseInt(doc.id) || Math.floor(Math.random() * 1000),
+            title: data.title,
+            category: data.category,
+            imageUrl: data.imageUrl,
+            description: data.description,
+            videoUrl: data.videoUrl
+          } as Project;
+        });
+    } else {
+      console.log("No projects data found");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching projects data:", error);
+    return null;
+  }
+};
+
+// Fetch all projects from Firestore
+export const fetchAllProjects = async (): Promise<Project[] | null> => {
   try {
     const projectsCollection = collection(db, 'projects');
     const projectsSnapshot = await getDocs(projectsCollection);
@@ -127,7 +158,8 @@ export const fetchProjects = async (): Promise<Project[] | null> => {
           title: data.title,
           category: data.category,
           imageUrl: data.imageUrl,
-          description: data.description
+          description: data.description,
+          videoUrl: data.videoUrl
         } as Project;
       });
     } else {
@@ -135,14 +167,7 @@ export const fetchProjects = async (): Promise<Project[] | null> => {
       return null;
     }
   } catch (error) {
-    console.error("Error fetching projects data:", error);
+    console.error("Error fetching all projects data:", error);
     return null;
   }
-};
-
-// Function to seed initial data (use this once to populate Firebase)
-export const seedInitialContent = async () => {
-  // This function would contain the code to seed your Firebase with initial data
-  // It's not implemented here as it would be run once manually
-  console.log("Seeding initial content would be implemented here");
 };
