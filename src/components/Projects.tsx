@@ -3,8 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchProjects, fetchAllProjects, Project } from '@/services/contentService';
 import { trackProjectView } from '@/services/analyticsService';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
-import { X } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const Projects = () => {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
@@ -179,11 +178,6 @@ const Projects = () => {
             <DialogTitle className="text-xl font-display">
               {activeProject?.title}
             </DialogTitle>
-            <DialogClose asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <X className="h-5 w-5" />
-              </Button>
-            </DialogClose>
           </DialogHeader>
           <div className="aspect-video w-full">
             {activeProject?.videoUrl && (
@@ -193,6 +187,8 @@ const Projects = () => {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 title={activeProject.title}
+                loading="lazy"
+                referrerPolicy="no-referrer"
               ></iframe>
             )}
           </div>
