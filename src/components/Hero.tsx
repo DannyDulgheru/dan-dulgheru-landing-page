@@ -30,19 +30,32 @@ const Hero = () => {
     // Load content from Firebase
     const loadContent = async () => {
       setLoading(true);
-      const heroContent = await fetchHeroContent();
-      if (heroContent) {
-        setContent(heroContent);
-      } else {
-        // Fallback content if Firebase data is not available
+      try {
+        const heroContent = await fetchHeroContent();
+        console.log("Hero content loaded:", heroContent); // Debug log
+        if (heroContent) {
+          setContent(heroContent);
+        } else {
+          // Fallback content if Firebase data is not available
+          setContent({
+            role: "2D Motion Designer",
+            heading: "Creating Motion Experiences that Captivate",
+            subheading: "I blend creativity with technical expertise to craft visually stunning animations that tell your story and engage your audience."
+          });
+        }
+      } catch (error) {
+        console.error("Error loading hero content:", error);
+        // Set fallback content on error
         setContent({
           role: "2D Motion Designer",
           heading: "Creating Motion Experiences that Captivate",
           subheading: "I blend creativity with technical expertise to craft visually stunning animations that tell your story and engage your audience."
         });
+      } finally {
+        setLoading(false);
+        // Only animate text after content is loaded
+        setTimeout(animateText, 100);
       }
-      setLoading(false);
-      animateText();
     };
 
     loadContent();
@@ -84,12 +97,18 @@ const Hero = () => {
           ref={headingRef}
           className="text-4xl md:text-6xl lg:text-7xl font-display font-bold mb-6 opacity-0 transform translate-y-10 transition-all duration-700 ease-out"
         >
-          {content?.heading?.split(' ').map((word, index, array) => {
-            if (index === 1 || index === array.length - 1) {
-              return <span key={index}><span className="text-gradient">{word}</span>{' '}</span>;
-            }
-            return <span key={index}>{word}{' '}</span>;
-          })}
+          {content && content.heading ? (
+            <>
+              {content.heading.split(' ').map((word, index, array) => {
+                if (index === 1 || index === array.length - 1) {
+                  return <span key={index}><span className="text-gradient">{word}</span>{' '}</span>;
+                }
+                return <span key={index}>{word}{' '}</span>;
+              })}
+            </>
+          ) : (
+            <>Creating <span className="text-gradient">Motion</span> Experiences that <span className="text-gradient">Captivate</span></>
+          )}
         </h1>
         
         <p 
