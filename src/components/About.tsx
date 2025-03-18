@@ -23,6 +23,7 @@ const About = () => {
           ],
           name: "John Doe",
           role: "Motion Designer / Art Director",
+          profileImage: "https://images.unsplash.com/photo-1555952517-2e8e729e0b44?q=80&w=1064",
           socialLinks: [
             { platform: "LinkedIn", url: "#" },
             { platform: "Instagram", url: "#" },
@@ -77,7 +78,7 @@ const About = () => {
             
             <div className="flex gap-6 mt-8">
               {content?.socialLinks.map((link, index) => (
-                <a key={index} href={link.url} className="inline-flex items-center gap-2 text-white hover:text-gray-300 transition-colors">
+                <a key={index} href={link.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white hover:text-gray-300 transition-colors">
                   {link.platform === "LinkedIn" && (
                     <svg 
                       xmlns="http://www.w3.org/2000/svg" 
@@ -127,6 +128,22 @@ const About = () => {
                       <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
                     </svg>
                   )}
+                  {link.platform === "Dribbble" && (
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="24" 
+                      height="24" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"></path>
+                    </svg>
+                  )}
                   {link.platform}
                 </a>
               ))}
@@ -137,8 +154,8 @@ const About = () => {
           <div className="order-1 lg:order-2 relative">
             <div className="aspect-square relative rounded-2xl overflow-hidden glass-morphism border border-white/10">
               <img 
-                src="https://images.unsplash.com/photo-1555952517-2e8e729e0b44?q=80&w=1064" 
-                alt="Designer working on motion graphics" 
+                src={content?.profileImage || "https://images.unsplash.com/photo-1555952517-2e8e729e0b44?q=80&w=1064"} 
+                alt={`${content?.name || 'Designer'} working on motion graphics`} 
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>

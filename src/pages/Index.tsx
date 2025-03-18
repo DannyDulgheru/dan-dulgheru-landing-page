@@ -10,12 +10,14 @@ import Footer from '@/components/Footer';
 import { createScrollObserver } from '@/lib/animations';
 import { trackPageView } from '@/services/analyticsService';
 import { seedFirebase, checkIfDataExists } from '@/services/seedService';
+import { fetchSiteInfo, SiteInfo } from '@/services/contentService';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const [isSeeding, setIsSeeding] = useState(false);
   const [dataExists, setDataExists] = useState(false);
+  const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null);
   
   // Check if data exists in Firebase on initial load
   useEffect(() => {
@@ -25,6 +27,9 @@ const Index = () => {
         setDataExists(exists);
         if (!exists) {
           toast.info("No content found in Firebase database. Consider seeding initial data.");
+        } else {
+          // Load site info if data exists
+          loadSiteInfo();
         }
       } catch (error) {
         console.error("Error checking if data exists:", error);
@@ -34,6 +39,20 @@ const Index = () => {
     checkData();
   }, []);
   
+  // Load site information from Firebase
+  const loadSiteInfo = async () => {
+    try {
+      const info = await fetchSiteInfo();
+      if (info) {
+        setSiteInfo(info);
+        // Update document title with site name
+        document.title = info.siteName;
+      }
+    } catch (error) {
+      console.error("Error loading site information:", error);
+    }
+  };
+  
   // Seed Firebase data function
   const handleSeedData = async () => {
     setIsSeeding(true);
@@ -42,6 +61,8 @@ const Index = () => {
       if (result.success) {
         toast.success("Data successfully seeded to Firebase!");
         setDataExists(true);
+        // Load site info after seeding
+        await loadSiteInfo();
         // Reload the page after seeding to show the new data
         setTimeout(() => {
           window.location.reload();
@@ -77,7 +98,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
-      <Navbar />
+      <Navbar siteName={siteInfo?.siteName} />
       <main>
         <Hero />
         <Projects />
@@ -106,7 +127,7 @@ const Index = () => {
           </Button>
         </div>
       </main>
-      <Footer />
+      <Footer siteInfo={siteInfo} />
     </div>
   );
 };

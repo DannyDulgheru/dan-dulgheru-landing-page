@@ -3,6 +3,20 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, getDoc, query, orderBy, limit } from 'firebase/firestore';
 
 // Types for our content data
+export interface SiteInfo {
+  siteName: string;
+  siteTagline: string;
+  siteDescription: string;
+  contactEmail: string;
+  contactPhone: string;
+  contactLocation: string;
+  socialLinks: {
+    platform: string;
+    url: string;
+    icon: string;
+  }[];
+}
+
 export interface HeroContent {
   heading: string;
   subheading: string;
@@ -14,6 +28,7 @@ export interface AboutContent {
   description: string[];
   name: string;
   role: string;
+  profileImage: string;
   socialLinks: {
     platform: string;
     url: string;
@@ -39,8 +54,43 @@ export interface Project {
   category: string;
   imageUrl: string;
   description: string;
-  videoUrl?: string; // Added for YouTube videos
+  videoUrl?: string;
+  detailedDescription?: string;
+  clientName?: string;
+  completionDate?: string;
+  toolsUsed?: string[];
 }
+
+export interface ContactInfo {
+  title: string;
+  subtitle: string;
+  email: string;
+  phone: string;
+  location: string;
+  availability: string;
+  socialLinks: {
+    platform: string;
+    url: string;
+  }[];
+}
+
+// Fetch site information from Firestore
+export const fetchSiteInfo = async (): Promise<SiteInfo | null> => {
+  try {
+    const docRef = doc(db, 'content', 'siteInfo');
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      return docSnap.data() as SiteInfo;
+    } else {
+      console.log("No site info found");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching site info:", error);
+    return null;
+  }
+};
 
 // Fetch hero content from Firestore
 export const fetchHeroContent = async (): Promise<HeroContent | null> => {
@@ -114,6 +164,24 @@ export const fetchStatsItems = async (): Promise<StatsItem[] | null> => {
   }
 };
 
+// Fetch contact information from Firestore
+export const fetchContactInfo = async (): Promise<ContactInfo | null> => {
+  try {
+    const docRef = doc(db, 'content', 'contact');
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      return docSnap.data() as ContactInfo;
+    } else {
+      console.log("No contact information found");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching contact information:", error);
+    return null;
+  }
+};
+
 // Fetch featured projects (limited amount) from Firestore
 export const fetchProjects = async (limit = 4): Promise<Project[] | null> => {
   try {
@@ -131,7 +199,11 @@ export const fetchProjects = async (limit = 4): Promise<Project[] | null> => {
             category: data.category,
             imageUrl: data.imageUrl,
             description: data.description,
-            videoUrl: data.videoUrl
+            videoUrl: data.videoUrl,
+            detailedDescription: data.detailedDescription,
+            clientName: data.clientName,
+            completionDate: data.completionDate,
+            toolsUsed: data.toolsUsed
           } as Project;
         });
     } else {
@@ -159,7 +231,11 @@ export const fetchAllProjects = async (): Promise<Project[] | null> => {
           category: data.category,
           imageUrl: data.imageUrl,
           description: data.description,
-          videoUrl: data.videoUrl
+          videoUrl: data.videoUrl,
+          detailedDescription: data.detailedDescription,
+          clientName: data.clientName,
+          completionDate: data.completionDate,
+          toolsUsed: data.toolsUsed
         } as Project;
       });
     } else {
